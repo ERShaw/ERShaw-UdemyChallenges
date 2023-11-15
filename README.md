@@ -1,4 +1,4 @@
-# Erik-Shaw-Portfolio
+# Erik-Shaw-Portfolio:UdemyChallenge
 A collection of SQL challenge questions and answers that showcase my SQL knowledge. 
 
 Challenge 1: SELECT
