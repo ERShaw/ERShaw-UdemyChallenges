@@ -4,15 +4,24 @@ A collection of SQL challenge questions and answers that showcase my SQL knowled
 ## Table of Contents
 - [Tools](#tools)
 - [Data Sources](#data-sources)
+- [Beginner Challenges](#beginner-challenges)
 - [Challenge 1: SELECT](#challenge-1-select)
 - [Challenge 2: ORDER BY](#challenge-2-order-by)
 - [Challenge 3: SELECT DISTINCT](#challenge-3-select-distinct)
+- [Day 1 Daily Challenge](#day-1-daily-challenge)
 - [Challenge 4: WHERE](#challenge-4-where)
 - [Challenge 5: WHERE operators](#challenge-5-where-operators)
 - [Challenge 6: WHERE with AND OR](#challenge-6-where-with-and-or)
 - [Challenge 7: BETWEEN](#challenge-7-between)
 - [Challenge 8: IN](#challenge-8-in)
 - [Challenge 9: LIKE](#challenge-9-like)
+- [Day 2 Daily Challenge](#day-2-daily-challenge)
+- [Challenge 10: Aggregate functions ](#challenge-10-aggregate-functions)
+- [Challenge 11: GROUP BY](#challenge-11-group-by)
+- [Challenge 12: GROUP BY multiple columns](#challenge-12-group-by-multiple-columns)
+- [Challenge 13: HAVING](#challenge-13-having)
+- [Intermediate Challenges](#intermediate-challenges)
+- 
 ## Tools
 PostgreSQL 
 
@@ -72,6 +81,43 @@ FROM payment
 ```
 
 **Results**: [challenge3CountDistinct.csv](https://github.com/ERShaw/Erik-Shaw-UdenyChallenges/files/13372029/challenge3CountDistinct.csv)
+
+
+### Day 1 Daily Challenge
+
+1. Create a list of all the distinct districts customers are from.
+```
+SELECT DISTINCT
+district
+FROM address
+```
+**Results**: [D1dailyQ1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13386721/D1dailyQ1.csv)
+
+2. What is the latest rental date?
+```
+SELECT rental_data
+FROM rental
+ORDER BY rental_date DESC
+LIMIT 1
+```
+**Result**: [D1dailyQ2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13386857/D1dailyQ2.csv)
+
+3. How many films does the company have?
+```
+SELECT
+COUNT(*)
+FROM film
+```
+**Results**: [D1dailyQ3.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13386870/D1dailyQ3.csv)
+
+4. How many distinct last names of the customers are there?
+```
+SELECT
+COUNT(DISTINCT last_name)
+FROM customer
+```
+**Results**: [D1dailyQ4.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13386886/D1dailyQ4.csv)
+
 
 ### Challenge 4: WHERE
 How many payments were made by the customer with customer_id = 100? What is the last name of customers with the first name 'ERICA'?
@@ -183,20 +229,112 @@ OR last_name LIKE '%Y')
 
 **Results**: [challenge9.csv](https://github.com/ERShaw/Erik-Shaw-UdenyChallenges/files/13372071/challenge9.csv)
 
+### Day 2 Daily Challenge
+1. How many movies are there that contain 'Saga' in the description and where the title starts either with 'A' or ends with 'R'? Use the alias 'no_of_movies'
+```
+SELECT
+COUNT (*) AS number_of_movie
+FROM film
+WHERE description LIKE '%Saga%'
+AND (title LIKE 'A%' OR title LIKE '%R')
+```
+**Result**: [D2dailyQ1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387146/D2dailyQ1.csv)
 
-### Challenge 10: Aggregate function
+2. Create a list of all cistomers where the first name contains 'ER' and has an 'A' as the second letter. Order the results by the last name descendingly.
+```
+SELECT
+
+```
+**Result**: [D2dailyQ2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387175/D2dailyQ2.csv)
+
+3. How many payments are there where the amount is either 0 or is between 3.99 and 7.99 and in the same time has happened on 2020-05-01.
+```
+SELECT 
+COUNT (*)
+FROM payment
+WHERE (amount = 0 
+OR amount BETWEEN 3.99 AND 7.99)
+AND payment_date BETWEEN '2020-05-01' AND '2020-05-02'
+```
+**Result**: [D2dailyQ3.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387276/D2dailyQ3.csv)
 
 
+### Challenge 10: Aggregate functions 
+Your manager wants to get a better understanding of the films. You are asked to write a query to see the minimum, maximum, average rounded to two decimal places, and the sum of the replacement cost of the films. 
+```
+SELECT
+MIN (replacement_cost),
+MAX(replacement_cost),
+ROUND(AVG(replacement_cost),2) AS AVG,
+SUM(replacement_cost)
+FROM film
+```
+**Results**: [challenge10.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387412/challenge10.csv)
+
+### Challenge 11: GROUP BY
+Your manager wants to know which of the two employees is rsponsible for more payments. Which of the two is responsible for a higher overall payment amount? How do these amounts change if we don't consider amounts equal to 0?
+
+```
+SELECT staff_id,
+SUM (amount),
+COUNT(*)
+FROM payment
+GROUP BY staff_id
+```
+**Results**: [challenge11pt1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387451/challenge11pt1.csv)
+
+```
+SELECT staff_id,
+SUM (amount),
+COUNT(*)
+FROM payment
+WHERE amount ! = 0
+GROUP BY staff_id
+```
+**Results**: [challenge11pt2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387533/challenge11pt2.csv)
 
 
+### Challenge 12: GROUP BY multiple columns
+There are two competitions between the two employees: Which employee had the highest sales amount in a single day? Which employee had the most sales in a single day(not counting payments with amount = 0?
+
+```
+SELECT staff_id, DATE(payment_date),
+SUM(amount),
+COUNT(*)
+FROM payment
+GROUP BY staff_id, DATE(payment_date)
+ORDER BY SUM(amount) DESC
+```
+**Results**: [challenge12pt1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387579/challenge12pt1.csv)
+
+```
+SELECT staff_id, DATE(payment_date),
+SUM(amount),
+COUNT(*)
+FROM payment
+WHERE amount !=0
+GROUP BY staff_id, DATE(payment_date)
+ORDER BY SUM(amount) DESC
+```
+**Results**: [challenge12pt2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387600/challenge12pt2.csv)
 
 
+### Challenge 13: HAVING
+In 2020, April 28, 29, and 30 were days with very high revenue. That's why we want to focus only on these days in this challenge. Find out what the average payment amount grouped by customer and day - consider only the days/customers with more then 1 payment (per customer and day.) Order by the average amount in a descending order.
 
+```
+SELECT
+customer_id, DATE(payment_date),
+ROUND(AVG(amount),2) AS avg_amount,
+COUNT (*)
+FROM payment
+WHERE DATE(payment_date) IN ('2020-04-28', '2020-04-29', '2020-04-30')
+GROUP BY customer_id, DATE(payment_date)
+ORDER BY ROUND (AVG(amount),2) DESC
+```
+**Results**: [challenge13.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387771/challenge13.csv)
 
-
-
-
-
+## Intermediate Challenges
 
 
 
