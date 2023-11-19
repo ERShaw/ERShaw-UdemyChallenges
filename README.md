@@ -21,6 +21,24 @@ A collection of SQL challenge questions and answers that showcase my SQL knowled
 - [Challenge 12: GROUP BY multiple columns](#challenge-12-group-by-multiple-columns)
 - [Challenge 13: HAVING](#challenge-13-having)
 - [Intermediate Challenges](#intermediate-challenges)
+- [Challenge 14: LENGTH,LOWER & UPPER](#challenge-14-length-lower-upper)
+- [Challenge 15: LEFT & RIGHT](#challenge-15-left-right)
+- [Challenge 16: Concatenate](#challenge-16-concatenate)
+- [Challenge 17: POSITION](#challenge-17-position)
+- [Challenge 18: SUBSTRING](#challenge-18-substring)
+- [Challenge 19: EXTRACT](#challenge-19-extract)
+- [Challenge 20: TO_CHAR](#challenge-20-to-char)
+- [Challenge 21: Intervals & Timestamps](#challenge-21-intervals-timestanps)
+- [Challenge 22: Mathematical Functions and operators](#challenge-22-mathematical-functions-and-operators)
+- [Challenge 23: CASE WHEN](#challenge-23-case-when)
+- [Challenge 24: CAST & COALESCE](#challenge-24-cast-coalesce)
+- [Challenge 25: INNER JOIN](#challenge-25-inner-join)
+- [Challenge 26: LEFT OUTER JOIN](#challenge-26-left-outer-join)
+- [Challenge 27: Joins](#challenge-27-joins)
+- [Challenge 28: Joins on multiple conditions](#challenge-28-joins-on-multiple-conditions)
+- [Challenge 29: Joining multiple tables](#challenge-29-joining-multiple-tables)
+- [Challenge 30: More Challenges](#challenge-30-more-chalenges)
+- [Advanced Challenges](#advanced-challenges)
 - 
 ## Tools
 PostgreSQL 
@@ -335,6 +353,298 @@ ORDER BY ROUND (AVG(amount),2) DESC
 **Results**: [challenge13.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13387771/challenge13.csv)
 
 ## Intermediate Challenges
+
+### Challenge 14: LENGTH, LOWER & UPPER
+In the email system there was a problem with names where either the first name or the last name is more than 10 characters long. Find these customers and output the list of these first and last names in all lower case.
+
+```
+SELECT
+LOWER(first_name),
+LOWER(last_name),
+LOWER(email)
+FROM customer
+WHERE LENGTH(first_name) > 10
+OR LENGTH(last_name) > 10
+```
+**Results**: [challenge14.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13398878/challenge14.csv)
+
+
+### Challenge 15: LEFT & RIGHT
+Extract the last 5 characters of the email address (the email address always ends with '.org') How can you extract just the dot'.' from the email address?
+
+```
+SELECT email,
+RIGHT(email,5)
+FROM customer
+```
+**Results**: [challenge15pt1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13398938/challenge15pt1.csv)
+
+```
+SELECT email,
+LEFT(RIGHT(email,4),1)
+FROM customer
+```
+**Results**: [challenge15pt2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13398949/challenge15pt2.csv)
+
+### Challenge 16: Concatenate
+You need to create an anonymized version of the email addresses. It should be the first character followed by '***' and then the last part starting with '@'. Note the email address always ends with '@sakilacustomer.org'
+
+```
+SELECT
+LEFT(email,1) || '***' || RIGHT(email,19) AS anonymized_email
+FROM customer
+```
+**Results**: [challenge16.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13398958/challenge16.csv)
+
+
+### Challenge 17: POSITION
+In this challenge you have only the email address and the last name of customers. You need to extract the first name from the email address and concatenate it with the last name. It should be in the form: 'Last name, First'
+
+```
+SELECT
+last_name || ', ' || LEFT(email, POSITION('.' IN email)-1),
+last_name
+FROM customer
+```
+**Results**: [challenge17.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13398984/challenge17.csv)
+
+
+### Challenge 18: SUBSTRING
+You need to create an anonymized form of the email addresses in the following format: 'M***S***@sakilcustomer.org'
+In a second query create an anonymized form of the email addresses in the following way: '***Y.S***sakilcustomer.org'
+
+```
+SELECT
+LEFT(email,1) || '***' || SUBSTRING(email from POSITION('.' IN email)for 2)
+|| '***' || SUBSTRING(email from POSITION('@' IN email))
+FROM customer
+```
+**Results**: [challenge18pt1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401435/challenge18pt1.csv)
+
+```
+SELECT
+'***'
+|| SUBSTRING(email from POSITION('.' in email)-1 for 3)
+|| '***'
+|| SUBSTRING(email from POSITION('@' in email))
+FROM customer
+```
+**Results**: [challenge18pt2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401481/challenge18pt2.csv)
+
+
+### Challenge 19: EXTRACT
+You need to analyze the payments and find out the following:
+1. What's the month with the highest total payment amount?
+
+```
+SELECT
+EXTRACT(month from payment_date) AS month,
+SUM(amount) AS payment_amount
+FROM payment
+GROUP BY month
+ORDER BY payment_amount DESC
+```
+**Results**: [challenge19pt1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401558/challenge19pt1.csv)
+
+2. What's the day of week with the highest total payment amount?
+
+```
+SELECT
+EXTRACT(dow from payment_date) AS day_of_week,
+SUM(amount) AS payment_amount
+FROM payment
+GROUP By day_of_week
+ORDER BY payment_amount DESC
+```
+**Results**: [challenge19pt2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401567/challenge19pt2.csv)
+
+4. What's the highest amount one customer has spent in a week?
+
+```
+SELECT
+customer_id,
+EXTRACT(week from payment_date) AS week,
+SUM(amount) AS payment_amount
+FROM payment
+GROUP By week, customer_id
+ORDER BY payment_amount DESC
+```
+**Results**: [challenge19pt3.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401575/challenge19pt3.csv)
+
+
+### Challenge 20: TO_CHAR
+You need to sum payments and group in the following formats:
+![TOCHARchallengept1](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/assets/124463259/d1f7ad8a-bffd-418b-884c-6490cf6f9554)
+
+```
+SELECT
+SUM(amount) AS total_payment,
+TO_CHAR(payment_date,'Dy, DD/MM/YYYY') AS day
+FROM payment
+GROUP BY day
+ORDER BY total_payment
+```
+**Results**: [challenge20pt1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401639/challenge20pt1.csv)
+
+![TOCHARpt2](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/assets/124463259/87b6a988-3db9-4221-adf1-c790722adcf6)
+
+```
+SELECT
+SUM(amount) AS total_payment,
+TO_CHAR(payment_date,'Mon, YYYY') AS mon_year
+FROM payment
+GROUP BY mon_year
+ORDER BY total_payment ASC
+```
+**Results**: [challenge20pt2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401653/challenge20pt2.csv)
+
+![TOCHARpt3](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/assets/124463259/44d73017-53fa-4578-9d72-d2dcbc487cf5)
+
+```
+SELECT
+SUM(amount) AS total_payment,
+TO_CHAR(payment_date,'Dy, HH:MI') AS day_time
+FROM payment
+GROUP BY day_time
+ORDER BY total_payment DESC
+```
+**Results**: [challenge20pt3.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401652/challenge20pt3.csv)
+
+### Challenge 21: Intervals & Timestamps
+You need to create a list for the support team of all rental durations of customer with customer_id 35. Also you need to find out which customer has the longest average rental duration?
+
+```
+SELECT
+customer_id,
+return_date-rental_date AS rental_duration
+FROM rental
+WHERE customer_id=35
+```
+**Results**: [challenge21pt1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401687/challenge21pt1.csv)
+
+```
+SELECT
+customer_id,
+AVG(return_date-rental_date) AS rental_duration
+FROM rental
+GROUP BY customer_id
+ORDER BY rental_duration DESC
+```
+**Results**: [challenge21pt2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401692/challenge21pt2.csv)
+
+
+### Challenge 22: Mathematical functions and operators
+Your manager is thinking about increasing the prices for films that are more expensive to replace. For that reason, you should create a list of films including the relation of rental rate to replacement cost where the rental rate is less than 4% of the replacement cost. Create a list of film_ids together with the percentage rounded to 2 decimal places. Example: 3.54(=3.54%)
+
+```
+SELECT
+film_id,
+ROUND(rental_rate / replacement_cost*100,2) AS percentage
+FROM film
+WHERE ROUND(rental_rate / replacement_cost*100,2)< 4
+ORDER BY percentage ASC
+```
+**Results**: [challenge22.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401823/challenge22.csv)
+
+
+### Challenge 23: CASE WHEN
+You need to find out how many tickets you have sold in the following categories:
+1. Low price ticket: total_amount<20,000
+2. Mid price ticket: total_amount between 20,000 and 150,000
+3. High price ticket: total_amount>= 150,000
+How many high price tickets has the company sold?
+
+```
+SELECT ticket_price, count(1)
+FROM
+(SELECT book_ref,
+CASE
+WHEN total_amount <20000 THEN 'low price'
+WHEN total_amount < 150000 THEN 'mid price'
+ELSE 'high price'
+END AS ticket_price
+FROM bookings)
+GROUP BY ticket_price
+```
+**Results**: [challenge23pt1.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401883/challenge23pt1.csv)
+
+You need to find out how many flights have departed in the following seasons:
+Winter: December, January, February
+Spring: March, April, May
+Summer: June, July, August
+Fall: September, October, November
+
+```
+SELECT COUNT(*) AS flights,
+CASE
+WHEN EXTRACT(month from scheduled_departure) IN (12,1,2) THEN 'Winter'
+WHEN EXTRACT (month from scheduled_departure)  <= 5 THEN 'Spring'
+WHEN EXTRACT (month from scheduled_departure) <= 8 THEN 'Summer'
+ELSE 'Fall'
+END AS season
+FROM flights
+GROUP BY season
+```
+**Results**: [challenge23pt2.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401887/challenge23pt2.csv)
+
+You want to create a tier list in the following way:
+1. Rating is 'PG' or 'PG-13' or length is more then 210 min: 'Great rating or long (Tier 1)
+2. Description contains "Drama' and length is more than 90min: 'Long drama (tier 2)'
+3. Description contains 'Drama' and length is not more than 90min: 'Short drama (tier 3)'
+4. Rental_rate less than $1: 'Very cheap (tier 4)'
+If one movie can be in multiple categories it gets the higher tier assigned.
+
+```
+SELECT
+title,
+CASE
+WHEN rating IN ('PG','PG-13') OR length > 210 THEN 'Great rating or long (tier 1)'
+WHEN description LIKE '%Drama%' AND length>90 THEN 'Long drama (tier 2)'
+WHEN description LIKE '%Drama%' THEN 'Short drama (tier 3)'
+WHEN rental_rate<1 THEN 'Very cheap (tier 4)'
+END as tier_list
+FROM film
+WHERE 
+CASE
+WHEN rating IN ('PG','PG-13') OR length > 210 THEN 'Great rating or long (tier 1)'
+WHEN description LIKE '%Drama%' AND length>90 THEN 'Long drama (tier 2)'
+WHEN description LIKE '%Drama%' THEN 'Short drama (tier 3)'
+WHEN rental_rate<1 THEN 'Very cheap (tier 4)'
+END is not null
+```
+**Results**: [challenge23pt3.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401890/challenge23pt3.csv)
+
+
+### Challenge 24: CAST & COALESCE
+Replace null with 'not returned'
+
+```
+SELECT
+rental_date,
+COALESCE(CAST(return_date AS VARCHAR), 'not returned)
+FROM rental
+ORDER BY rental_date DESC
+```
+**Results**: [challenge24.csv](https://github.com/ERShaw/Erik-Shaw-UdemyChallenges/files/13401900/challenge24.csv)
+
+
+### Challenge 25: INNER JOIN
+
+### Challenge 26: LEFT OUTER JOIN
+
+### Challenge 27: Joins
+
+### Challenge 28: Joins on multiple conditions
+
+### Challenge 29: Joining multiple tables
+
+### Challenge 30: More Challenges
+
+
+
+
+
+## Advanced Challenges
 
 
 
